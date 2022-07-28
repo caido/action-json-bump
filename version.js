@@ -1,4 +1,5 @@
 const fs = require('fs-extra')
+const _ = require('lodash')
 
 /**
  * @typedef {object} VersionReturn
@@ -39,10 +40,10 @@ module.exports = async function version(filename, options={}) {
         process.exit(1)
     }
     options.entry = options.entry || 'version'
-    const current = json[options.entry] || ''
+    const current = _.get(json, options.entry)
     let updated, split
     if (options.replace) {
-        json[options.entry] = options.replace
+        _.set(json, options.entry, options.replace)
         split = current.split('.')
     } else if (options.readOnly) {
         split = current.split('.')
@@ -62,9 +63,10 @@ module.exports = async function version(filename, options={}) {
         } else if (options.patch) {
             split[2] = parseInt(split[2]) + options.patch
         }
-        json[options.entry] = parseInt(split[0]) + '.' + parseInt(split[1]) + '.' + parseInt(split[2])
+        const version = parseInt(split[0]) + '.' + parseInt(split[1]) + '.' + parseInt(split[2])
+        _.set(json, options.entry, version);
     }
-    updated = json[options.entry]
+    updated = _.get(json, options.entry);
     await fs.writeJSON(filename, json, { spaces: options.spaces })
     if (split.length === 3) {
         return { original: current, updated, major: split[0], minor: split[1], patch: split[2] }
