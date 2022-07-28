@@ -1,5 +1,4 @@
 const fs = require('fs/promises')
-const stringify = require('json-stringify-pretty-compact');
 const _ = require('lodash')
 
 /**
@@ -69,7 +68,7 @@ module.exports = async function version(filename, options={}) {
         _.set(json, options.entry, version);
     }
     updated = _.get(json, options.entry);
-    const file = stringify(json);
+    const file = JSON.stringify(json, null, 2);
     await fs.writeFile(filename, file)
     if (split.length === 3) {
         return { original: current, updated, major: split[0], minor: split[1], patch: split[2] }
