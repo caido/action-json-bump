@@ -1,4 +1,5 @@
-const fs = require('fs-extra')
+const fs = require('fs/promises')
+const stringify = require('json-stringify-pretty-compact');
 const _ = require('lodash')
 
 /**
@@ -34,7 +35,8 @@ module.exports = async function version(filename, options={}) {
         if (filename.indexOf('/') === -1 && filename.indexOf('\\') === -1) {
             filename = `${process.cwd()}/${filename}`
         }
-        json = await fs.readJSON(filename)
+        const file = await fs.readFile(filename)
+        json = JSON.parse(file)
     } catch (e) {
         console.error(`ERROR opening file ${filename} (${e.error})`)
         process.exit(1)
@@ -67,7 +69,8 @@ module.exports = async function version(filename, options={}) {
         _.set(json, options.entry, version);
     }
     updated = _.get(json, options.entry);
-    await fs.writeJSON(filename, json, { spaces: options.spaces })
+    const file = stringify(json);
+    await fs.writeFile(filename, file)
     if (split.length === 3) {
         return { original: current, updated, major: split[0], minor: split[1], patch: split[2] }
     } else {
