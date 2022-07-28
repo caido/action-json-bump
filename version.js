@@ -68,7 +68,7 @@ module.exports = async function version(filename, options={}) {
         _.set(json, options.entry, version);
     }
     updated = _.get(json, options.entry);
-    const file = JSON.stringify(json, null, 2);
+    const file = JSON.stringify(json, null, options.spaces);
     await fs.writeFile(filename, file)
     if (split.length === 3) {
         return { original: current, updated, major: split[0], minor: split[1], patch: split[2] }
